@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html ng-app="main">
+    <head>
+        <title>Node</title>
+        <script src="./node_modules/angular/angular.min.js"></script>
+        <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+        <script>
+            angular.module("main", []).controller("MainCtrl", function($scope, $http){
+                $http.get("step1.json").success(function(data){
+                    $scope.names = data;
+                });
+
+                $scope.sortField = "firstName";
+                $scope.reverse = false;
+
+                $scope.removeName = function(name){
+                    var i = $scope.names.indexOf(name);
+                    $scope.names.splice(i, 1);
+                }
+            });
+        </script>
+    </head>
+    <body ng-controller="MainCtrl">
+        <table>
+            <tr>
+                <th style="border:1px solid #000000;"><a href="" ng-click="sortField='firstName';reverse=!reverse;">First Name</a></th>
+                <th style="border:1px solid #000000;"><a href="" ng-click="sortField='lastName';reverse=!reverse;">Last Name</a></th>
+                <th style="border:1px solid #000000;"></th>
+            </tr>
+            <tr ng-repeat="name in names | filter:query | orderBy:sortField:reverse">
+                <td style="border:1px solid #000000;">{{name.firstName}}</td>
+                <td style="border:1px solid #000000;">{{name.lastName}}</td>
+                <td style="border:1px solid #000000;"><a href="" ng-click="removeName(name)">X</a></td>
+            </tr>
+            <tr>
+                <td style="border:1px solid #000000;" colspan="3"><input type="text" id="search" ng-model="query" placeholder="Search" /></td>
+            </tr>
+        </table>
+    </body>
+</html>

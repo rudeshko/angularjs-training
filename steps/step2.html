@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html ng-app="main">
+    <head>
+        <title>Node</title>
+        <script src="./node_modules/angular/angular.min.js"></script>
+        <script src="./node_modules/angular-route/angular-route.min.js"></script>
+        <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+        <script>
+            var app = angular.module("main", ['ngRoute']);
+            app.config(function($routeProvider){
+                $routeProvider.
+                when("/", {
+                    template: '<table><tr ng-repeat="name in names"><td style="border:1px solid #000000;"><a href="#/{{name.id}}">{{name.firstName}}</a></td></tr></table>',
+                    controller: 'MainCtrl'
+                }).
+                when("/:id", {
+                    template: '<h1>{{name.firstName}} {{name.lastName}}</h1>',
+                    controller: 'DetailCtrl'
+                });
+            });
+
+            app.factory("names", function($http){
+                var cache;
+
+                function getData(callback){
+                    if(cache){
+                        callback(cache);
+                    }else{
+                        $http.get("step2.json").success(function(data){
+                            cache = data;
+                            callback(cache);
+                        });
+                    }
+                }
+
+                return {
+                    list: getData,
+                    find: function(id, callback){
+                        getData(function(data){
+                            var name = data.filter(function(entry){
+                                return entry.id == id;
+                            })[0];
+                            callback(name);
+                        });
+                    }
+                }
+            });
+            
+            app.controller("MainCtrl", function($scope, names){
+                names.list(function(data){
+                    $scope.names = data;
+                });
+            });
+            
+            app.controller("DetailCtrl", function($scope, $routeParams, names){
+                $scope.id = $routeParams.id;
+
+                names.find($routeParams.id, function(data){
+                    $scope.name = data;
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div ng-view></div>
+    </body>
+</html>
