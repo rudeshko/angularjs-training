@@ -3,7 +3,7 @@
     <tr ng-repeat="user in users">
         <td style="border:1px solid #000000;">
             <input type="text" value="{{user.name.first}}" ng-model="user.name.first" /><input type="text" ng-model="user.name.last" value="{{user.name.last}}" />
-            <span ng-click="updateUser(user._id, user)">&olarr;</span>
+            <span ng-click="updateUser(user._id, user)"><button>&olarr;</button></span>
         </td>
         <td style="border:1px solid #000000;">
             <a ui-sref="user.details({id: user._id})">Details</a>
