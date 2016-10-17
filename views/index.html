@@ -3,13 +3,29 @@
     <head>
         <title>Node</title>
         <script src="./js/angular/angular.min.js"></script>
+        <script src="./js/angular/angular-loadscript.js"></script>
         <script src="./js/angular-ui-router/release/angular-ui-router.min.js"></script>
         <script src="./js/jquery/dist/jquery.min.js"></script>
-        
         <script src="./index.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCicOTrQUhUR19QxTjhwRK0TylXwNe3bec&callback=initMap" async defer></script>
+        <script>
+        var map;
+        var googleObj;
+        function initMap() {
+            googleObj = google;
+            map = new google.maps.Map($("#map")[0], {
+                zoom: 4,
+                center: {lat: -25.363, lng: 131.044}
+            });
+        }
+        </script>
+
+        <style src="./css/normalize.css"></style>
+        <style src="./css/skeleton.css"></style>
     </head>
     <body>
         <div ui-view="nav"></div>
         <div ui-view="content"></div>
+        <div id="map" style="width:500px; height:500px;"></div>
     </body>
 </html>

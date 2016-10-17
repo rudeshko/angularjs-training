@@ -9,7 +9,7 @@
             <a ui-sref="user.details({id: user._id})">Details</a>
         </td>
         <td style="border:1px solid #000000;">
-            <span ng-click="deleteUser(user._id)">&times;</span>
+            <a href="" onclick="return false;" ng-click="deleteUser(user._id)">Delete &times;</a>
         </td>
     </tr>
 </table>

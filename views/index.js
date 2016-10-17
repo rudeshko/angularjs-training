@@ -1,4 +1,4 @@
-var app = angular.module("main", ['ui.router']);
+var app = angular.module("main", ['ui.router', 'ngLoadScript']);
 
 app.config(function($stateProvider, $urlRouterProvider){
     $urlRouterProvider.otherwise("/");
@@ -80,4 +80,10 @@ app.controller("UserDetailCtrl", function($scope, $http, $stateParams){
     }).error(function(err){
         console.log(err);
     });
+});
+
+app.directive("foo", function(){
+    return {
+        template: "<h1>Foo</h1>"
+    };
 });
