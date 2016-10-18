@@ -1,13 +1,31 @@
-{{user.name.first}} {{user.name.last}}<br />
-<pre>{{user}}</pre>
+<div id="top-panel">
+    <a ui-sref="user.list">&lt; Back</a>
+</div>
 
-<script type="text/javascript-lazy">
-    console.log(angular);
-    $("pre").append("<foo></foo>");
+<table>
+    <tr>
+        <td style="vertical-align:top;">
+            <b>User Info:</b><br />
+            Name: {{user.firstname}} {{user.lastname}}<br /><br />
 
-    var marker = new googleObj.maps.Marker({
-        position: {lat: -25.363, lng: 131.044},
-        map: map,
-        title: 'Hello World!'
-    });
-</script>
+            <b>Appointments:</b>
+            <div>
+                <input type="text" ng-model="formAddAppointment.lat" placeholder="Latitude" />
+                <input type="text" ng-model="formAddAppointment.lng" placeholder="Longitude" />
+                
+                <button ng-click="createAppointment()">+</button>
+            </div>
+
+            <div ng-repeat="appointment in appointments">
+                <div>
+                    <input type="text" value="{{appointment.lat}}" ng-model="appointment.lat" />
+                    <input type="text" value="{{appointment.lng}}" ng-model="appointment.lng" />
+                    <span ng-click="deleteAppointment(appointment.id)"><button>&times;</button></span>
+                </div>
+            </div>
+        </td>
+        <td style="vertical-align:top;">
+            <div id="map" style="width:500px; height:500px;"></div>
+        </td>
+    </tr>
+</table>

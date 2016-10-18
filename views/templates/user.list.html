@@ -1,15 +1,10 @@
 <ng-include src="'/templates/user.list.add.html'"></ng-include>
-<table>
-    <tr ng-repeat="user in users">
-        <td style="border:1px solid #000000;">
-            <input type="text" value="{{user.name.first}}" ng-model="user.name.first" /><input type="text" ng-model="user.name.last" value="{{user.name.last}}" />
-            <span ng-click="updateUser(user._id, user)"><button>&olarr;</button></span>
-        </td>
-        <td style="border:1px solid #000000;">
-            <a ui-sref="user.details({id: user._id})">Details</a>
-        </td>
-        <td style="border:1px solid #000000;">
-            <a href="" onclick="return false;" ng-click="deleteUser(user._id)">Delete &times;</a>
-        </td>
-    </tr>
-</table>
+<div ng-repeat="user in users">
+    <div>
+        <input type="text" value="{{user.firstname}}" ng-model="user.firstname" />
+        <input type="text" value="{{user.lastname}}" ng-model="user.lastname" />
+        <span ng-click="updateUser(user.id, user)"><button data-id="{{user.id}}">&olarr;</button></span>
+        <span ng-click="deleteUser(user.id)"><button>&times;</button></span>
+        <a ui-sref="user.details({id: user.id})">View Appointments</a>
+    </div>
+</div>

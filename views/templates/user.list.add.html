@@ -1,9 +1,6 @@
-<div id="addUser">
-    <form>
-        <input type="text" name="name[first]" ng-model="formAddUser.name.first" />
-        <input type="text" name="name[last]" ng-model="formAddUser.name.last" />
-        
-        <input type="submit" name="submit" ng-click="createUser()" />
-    </form>
+<div id="top-panel">
+    <input type="text" ng-model="formAddUser.firstname" placeholder="First Name" />
+    <input type="text" ng-model="formAddUser.lastname" placeholder="Last Name" />
+    
+    <button ng-click="createUser()">+</button>
 </div>
-<hr />
