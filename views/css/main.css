@@ -1,0 +1,37 @@
+div#nav{
+    width:100%;
+    padding:10px;
+    background:#cccccc;
+}
+
+div#nav a{
+    color:#000000;
+}
+
+div#nav a.active{
+    color:#0055AA;
+    text-decoration:none;
+}
+
+#view-content{
+    padding:10px;
+}
+
+input{
+    margin-bottom:5px;
+}
+
+button{
+    width:60px;
+    font-size:15px;
+    line-height:15px;
+    padding:0px;
+}
+
+form{
+    margin:0px;
+}
+
+#top-panel{
+    height:60px;
+}
