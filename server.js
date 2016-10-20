@@ -3,6 +3,7 @@ var express = require("express");
 var mongoose = require("mongoose");
 var bodyParser = require("body-parser");
 var fs = require("fs");
+var Promise = require("promise");
 
 /* MySQL */
 var mysql = require("mysql");
@@ -30,39 +31,57 @@ app.use(bodyParser.urlencoded({
 }));
 
 /* Helper Functions */
-function query(query, callback){
-    connection.query(query, function(err, rows, fields){
-        if(err){
-            throw err;
-        }
+String.prototype.format = function(){
+    var formatted = this;
 
-        callback(rows);
+    for(var i = 0; i < arguments.length; i++){
+        formatted = formatted.replace("{#}", arguments[i]);
+    }
+
+    return formatted;
+};
+
+function query(query){
+    return new Promise(function(fulfill, reject){
+        connection.query(query, function(err, rows, fields){
+            if(err){
+                throw err;
+            }
+            
+            fulfill(rows);
+        });
     });
 }
 
 function queryOne(query, callback){
-    connection.query(query, function(err, rows, fields){
-        if(err){
-            throw err;
-        }
+    return new Promise(function(fulfill, reject){
+        connection.query(query, function(err, rows, fields){
+            if(err){
+                throw err;
+            }
 
-        if(rows.length > 0){
-            callback(rows[0]);
-        }else{
-            callback({});
-        }
+            if(rows.length > 0){
+                fulfill(rows[0]);
+            }else{
+                fulfill({});
+            }
+        });
     });
 }
 
-function getUserAppointments(userId, callback){
-    query("SELECT appointments.id, locations.lat, locations.lng, appointments.date FROM `appointments` INNER JOIN `locations` ON appointments.location_id=locations.id WHERE `user_id`='" + userId + "'", function(response){
-        callback(response);
+function getUserAppointments(userId){
+    return new Promise(function(fulfill, reject){
+        query("SELECT appointments.id, locations.lat, locations.lng, appointments.date FROM `appointments` INNER JOIN `locations` ON appointments.location_id=locations.id WHERE `user_id`='{#}'".format(userId))
+        .then(function(response){
+            fulfill(response);
+        });
     });
 }
 
 /* GET */
 app.get("/api/users", function(req, res){
-    query("SELECT * FROM `users`", function(response){
+    query("SELECT * FROM `users`")
+    .then(function(response){
         res.json(response);
     });
 });
@@ -70,14 +89,16 @@ app.get("/api/users", function(req, res){
 app.get("/api/users/:userId", function(req, res){
     var response = {};
 
-    queryOne("SELECT * FROM `users` WHERE `id`='" + req.params.userId + "'", function(user){
+    queryOne("SELECT * FROM `users` WHERE `id`='{#}'".format(req.params.userId))
+    .then(function(user){
         response.user = user;
-        
-        getUserAppointments(req.params.userId, function(appointments){
-            response.appointments = appointments;
 
-            res.json(response);
-        });
+        return getUserAppointments(req.params.userId);
+    })
+    .then(function(appointments){
+        response.appointments = appointments;
+
+        res.json(response);
     });
 });
 
@@ -87,10 +108,12 @@ app.post("/api/users", function(req, res){
         return;
     }
 
-    query("INSERT INTO `users` (`firstname`, `lastname`) VALUES ('" + req.body.firstname + "', '" + req.body.lastname + "')", function(response){
-        query("SELECT * FROM `users`", function(response){
-            res.json(response);
-        });
+    query("INSERT INTO `users` (`firstname`, `lastname`) VALUES ('{#}', '{#}')".format(req.body.firstname, req.body.lastname))
+    .then(function(response){
+        return query("SELECT * FROM `users`");
+    })
+    .then(function(response){
+        res.json(response);
     });
 });
 
@@ -99,48 +122,64 @@ app.post("/api/appointments", function(req, res){
         return;
     }
 
-    query("INSERT INTO `locations` (`lat`, `lng`) VALUES ('" + req.body.lat + "', '" + req.body.lng + "')", function(response){
-        var userId = req.body.userId;
-        var locationId = response.insertId;
+    var userId = req.body.userId;
+    var locationId;
 
-        query("INSERT INTO `appointments` (`user_id`, `location_id`) VALUES ('" + userId + "', '" + locationId + "')", function(response2){
-            getUserAppointments(userId, function(response){
-                res.json(response);
-            });
-        });
+    query("INSERT INTO `locations` (`lat`, `lng`) VALUES ('{#}', '{#}')".format(req.body.lat, req.body.lng))
+    .then(function(response){
+        locationId = response.insertId;
+
+        return query("INSERT INTO `appointments` (`user_id`, `location_id`) VALUES ('{#}', '{#}')".format(userId, locationId));
+    })
+    .then(function(response2){
+        return getUserAppointments(userId);
+    })
+    .then(function(response){
+        res.json(response);
     });
 });
 
 /* PUT */
 app.put("/api/users/:id", function(req, res){
-    query("UPDATE `users` SET `firstname`='" + req.body.firstname + "', `lastname`='" + req.body.lastname + "' WHERE `id`='" + req.params.id + "'", function(response){
-        query("SELECT * FROM `users`", function(response){
-            res.json(response);
-        });
+    query("UPDATE `users` SET `firstname`='{#}', `lastname`='{#}' WHERE `id`='{#}'".format(req.body.firstname, req.body.lastname, req.params.id))
+    .then(function(response){
+        return query("SELECT * FROM `users`");
+    })
+    .then(function(response){
+        res.json(response);
     });
 });
 
 /* DELETE */
 app.delete("/api/users/:id", function(req, res){
-    query("DELETE FROM `users` WHERE `id`='" + req.params.id + "'", function(response){
-        query("SELECT * FROM `users`", function(response){
-            res.json(response);
-        });
+    query("DELETE FROM `users` WHERE `id`='{#}'".format(req.params.id))
+    .then(function(response){
+        return query("SELECT * FROM `users`");
+    })
+    .then(function(response){
+        res.json(response);
     });
 });
 
 app.delete("/api/appointments/:id", function(req, res){
-    queryOne("SELECT `user_id`, `location_id` FROM `appointments` WHERE `id`='" + req.params.id + "'", function(appointment){
-        var userId = appointment.user_id;
-        var locationId = appointment.location_id;
+    var userId;
+    var locationId;
 
-        query("DELETE FROM `appointments` WHERE `id`='" + req.params.id + "'", function(response){
-            query("DELETE FROM `locations` WHERE `id`='" + locationId + "'", function(response2){
-                getUserAppointments(userId, function(appointments){
-                    res.json(appointments);
-                });
-            });
-        });
+    queryOne("SELECT `user_id`, `location_id` FROM `appointments` WHERE `id`='{#}'".format(req.params.id))
+    .then(function(appointment){
+        userId = appointment.user_id;
+        locationId = appointment.location_id;
+
+        return query("DELETE FROM `appointments` WHERE `id`='{#}'".format(req.params.id));
+    })
+    .then(function(response){
+        return query("DELETE FROM `locations` WHERE `id`='{#}'".format(locationId));
+    })
+    .then(function(response2){
+        return getUserAppointments(userId);
+    })
+    .then(function(appointments){
+        res.json(appointments);
     });
 });
 

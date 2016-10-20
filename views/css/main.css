@@ -17,21 +17,20 @@ div#nav a.active{
     padding:10px;
 }
 
-input{
-    margin-bottom:5px;
-}
-
-button{
-    width:60px;
-    font-size:15px;
-    line-height:15px;
-    padding:0px;
-}
-
 form{
     margin:0px;
 }
 
+.form-control{
+    display:inline-block;
+    width:auto;
+    height:31px;
+}
+
 #top-panel{
     height:60px;
+}
+
+#map{
+    margin-left:100px;
 }

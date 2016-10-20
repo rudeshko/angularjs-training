@@ -24,7 +24,7 @@ function clearMap(){
 
 function updateMap(array){
     clearMap();
-    
+
     array.forEach(function(row){
         markersArray.push(new googleObj.maps.Marker({
             position: {
