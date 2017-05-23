@@ -16,7 +16,7 @@ var connection = mysql.createConnection({
 connection.connect();
 
 /* MongoDB */
-mongoose.connect("mongodb://rudeshko:password@jello.modulusmongo.net:27017/otoqaV7a");
+mongoose.connect("mongodb://rudeshko:password@localhost:27017/angularnode");
 var User = require("./models/User.js");
 var Appointment = require("./models/Appointment.js");
 var Schedule = require("./models/Schedule.js");
